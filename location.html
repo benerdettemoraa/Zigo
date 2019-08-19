@@ -31,7 +31,38 @@
                 </button>
                 <a class="navbar-brand" href="#page-top">Zigo App</a>
             </div>
+import React from 'react';
+import { Route } from 'react-router';
 
+export default (store) => {
+  function requireAuth(nextState, replace) {
+    if(!store.getState().auth.isAuthenticated) {
+      replace({
+        pathname: '/',
+        state: { nextPathname: nextState.location.pathname }
+      })
+    }
+  }
+
+  return { childRoutes: [{
+      path: '/',
+      getComponents(location, callback) {
+        require.ensure(['./containers/App/App.jsx'], function (require) {
+            callback(null, require('./containers/App/App.jsx').default)
+        })
+      },
+      childRoutes: [{
+        path: 'about',
+        onEnter: requireAuth,
+        getComponents(location, callback) {
+          require.ensure(['./containers/About/About.jsx'], function (require) {
+              callback(null, require('./containers/About/About.jsx').default)
+          })
+        }
+      }]
+    }]
+  }
+};
             <!-- Collect the nav links, forms, and other content for toggling -->
               <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
